@@ -8,6 +8,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useToast } from "@chakra-ui/react";
 
 
+/*===============           BACKEND NECESSITIES            ================*/
+import axios from "axios";
+import { registerAuthURL } from "../../lib/apiConfig";
+
 /*===============           AUTH SCHEMAS            ================*/
 export const GeneralRegistrationSchema = yup.object().shape({
     first_name: yup.string().required("*First Name is required"),
@@ -46,7 +50,12 @@ export const RegistrationForm = () => {
 
     const handleRegistrationSubmit = (RegistrationData: RegistrationFormData) => {
         try {
-            console.log(RegistrationData);
+            // We will send the form to our PHP SQL backend, then we will register the user.
+            // axios.post(registerAuthURL, RegistrationData);
+            axios.post(registerAuthURL, RegistrationData).then((response) => {
+                console.log(response.data);
+            });
+            // console.log(RegistrationData);
             toast({
                 title: "Registration successful",
                 description: "You have successfully registered",
