@@ -3,7 +3,7 @@ import { TestingPage } from "./testing-page";
 export const LandingPage = () => {
     return (
         <div>
-            <TestingPage isQuery = {false} query = {""}/>
+            <TestingPage/>
         </div>
     );
 };

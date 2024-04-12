@@ -10,4 +10,7 @@ export type UserType = {
     province: string;
     email: string;
     contact_number: string;
+    password: string;
+    user_type: string;
+    usc_id_num: string;
 };
