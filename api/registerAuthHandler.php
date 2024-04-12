@@ -21,20 +21,17 @@
             
             break;
         case 'POST':
-            echo "POST";
             // Getting the data from the front end and echo it
             $data = json_decode(file_get_contents('php://input'), true);
             // echo json_encode($data);
+            
             // Establishing a PDO connection
             $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
             
-            // Preparing the SQL statement
-            $stmt = $pdo->prepare("INSERT INTO user (id, first_name, last_name, middle_name, city, barangay, province, email, contact_number, password, user_type, usc_id_num) VALUES (:id, :first_name, :last_name, :middle_name, :city, :barangay, :province, :email, :contact_number, :password, :account_type, :usc_id_num)");
-            
+            $stmt = $pdo->prepare("INSERT INTO user (id, first_name, last_name, middle_name, city, barangay, province, email, contact_number, password, account_type, usc_id_num) VALUES (:id, :first_name, :last_name, :middle_name, :city, :barangay, :province, :email, :contact_number, :password, :account_type, :usc_id_num)");
+
             // Binding the parameters
-            // The ID is auto-incremented so we don't need to bind it, the $data doesnt have the ID as well
-            // just increment the ID on the database
-            $id = 0;
+            $id = 0; // Assuming your id starts from 0
             $stmt->bindParam(':id', $id);
             $stmt->bindParam(':first_name', $data['first_name']);
             $stmt->bindParam(':last_name', $data['last_name']);
@@ -48,14 +45,15 @@
             $stmt->bindParam(':password', $passwordHash);
             $user_type = "user";
             $stmt->bindParam(':account_type', $user_type);
+            $usc_id_num = ""; // Assuming you have the value for usc_id_num
+            $stmt->bindParam(':usc_id_num', $usc_id_num); // Binding usc_id_num
             
             // Executing the statement
             if ($stmt->execute()) {
-                echo "Data inserted successfully";
+                echo "success";
             } else {
-                echo "Error inserting data";
+                echo "error";
             }
-
             break;
         case 'PUT':
             echo "PUT";

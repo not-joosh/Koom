@@ -6,11 +6,13 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useToast } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
 
 /*===============           BACKEND NECESSITIES            ================*/
 import axios from "axios";
 import { registerAuthURL } from "../../lib/apiConfig";
+import { HOMEROUTE } from "../../lib/routes";
 
 /*===============           AUTH SCHEMAS            ================*/
 export const GeneralRegistrationSchema = yup.object().shape({
@@ -44,6 +46,7 @@ export interface RegistrationFormData {
 
 export const RegistrationForm = () => {
     const toast = useToast();
+    const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(GeneralRegistrationSchema),
     });
@@ -51,11 +54,29 @@ export const RegistrationForm = () => {
     const handleRegistrationSubmit = (RegistrationData: RegistrationFormData) => {
         try {
             // We will send the form to our PHP SQL backend, then we will register the user.
-            // axios.post(registerAuthURL, RegistrationData);
+            axios.post(registerAuthURL, RegistrationData);
+            let isSuccess = false;
             axios.post(registerAuthURL, RegistrationData).then((response) => {
                 console.log(response.data);
+                // response can be can be "success" or "failed". we will handle this and throw error
+                if (response.data === "success") {
+                    isSuccess = true;
+                }
             });
-            // console.log(RegistrationData);
+
+            if(isSuccess === false) {
+                throw new Error("Registration failed. Please try again.");
+            }
+
+            //going to use the contact number to now grab their id and then return it here
+            let userId = "";
+            axios.get(`http://localhost/pdo/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`).then((response) => {
+                // the userId is an object, so i will just need to get the thing "id"
+                console.log(response.data);
+                // storing the response.data[0].id into userId
+                // localStorage.setItem(response.data[0].id; <--- this is what i want to do
+                localStorage.setItem("token", response.data[0].id);
+            });
             toast({
                 title: "Registration successful",
                 description: "You have successfully registered",
@@ -66,6 +87,9 @@ export const RegistrationForm = () => {
             });
             // Setting local storage to say the user has logged in
             localStorage.setItem("isAuthenticated", "true");
+
+            // renavigate them to homepage after
+            navigate(HOMEROUTE);
         } catch (error: unknown) {
             if(error instanceof Error) {
                 toast({
@@ -73,12 +97,15 @@ export const RegistrationForm = () => {
                     description: error.message,
                     status: "error",
                     duration: 5000,
+                    position: 'top',
                     isClosable: true,
                 });
             }
         };
     };
+    useEffect(() => {
 
+    }, []);
     return (
         <motion.div className=" py-4">
             <Card>
