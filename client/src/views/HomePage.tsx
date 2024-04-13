@@ -2,20 +2,125 @@ import { useEffect, useState } from "react";
 import { TransitionBlob } from "../components/motion/TransitionBlob";
 import { useNavigate } from "react-router-dom";
 import { LANDINGROUTE } from "../lib/routes";
+import { Button, Card, CardBody, CardFooter, CardHeader } from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import axios from "axios";
+const MotionButton = motion(Button);
+
 export const HomePage = () => {
     const navigate = useNavigate();
+    const toast = useToast();
+    const [dateCheckin, setDateCheckin] = useState<string>("");
+    const [timeCheckin, setTimeCheckin] = useState<string>("");
+
+    const handleSignOut = () => {
+        try {
+            // Get the current time in the format HH:mm AM/PM with zero-padding for minutes
+            const date = new Date();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const ampm = hours >= 12 ? "PM" : "AM";
+            const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+            const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+            const currentTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+
+            // Get the current date in the format "Month Day, Year"
+            const monthNames = [
+                "January", "February", "March",
+                "April", "May", "June", "July",
+                "August", "September", "October",
+                "November", "December"
+            ];
+            const month = monthNames[date.getMonth()];
+            const day = date.getDate();
+            const year = date.getFullYear();
+            const currentDate = `${month} ${day}, ${year}`;
+    
+            // Create the data object to send to the backend
+            const data = {
+                id: localStorage.getItem('token'), // Assuming this is the attendance ID
+                time_str_exit: currentTime,
+                date_str_exit: currentDate
+            };
+    
+            axios.post("http://localhost/pdo/api/attendanceHandler.php?attendanceCheckout", data)
+                .then((response) => {
+                    console.log(response.data);
+                    // Remove tokens and navigate after successful sign-out
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("isAuthenticated");
+                    localStorage.removeItem("userType");
+                    navigate(LANDINGROUTE);
+                })
+                .catch((error) => {
+                    console.error("Error signing out:", error);
+                    // Handle error with toast or any other method
+                    toast({
+                        title: "Error signing out",
+                        description: error.message,
+                        status: "error",
+                        duration: 5000,
+                        isClosable: true
+                    });
+                });
+        } catch (error: unknown) {
+            if(error instanceof Error)
+            toast({
+                title: "Error signing out",
+                description: error.message,
+                status: "error",
+                duration: 5000,
+                isClosable: true
+            });
+        }
+    };
+
     useEffect(() => {
         document.title = "KOOM | Home";
-        // Checking local storage to see if they are authenthicated
-        // if not, redirect to landing page
         if (localStorage.getItem("token") === null)
             navigate(LANDINGROUTE);
+        // doing axios call to backend userID, i can use their token to query in userHandler.php to get json data for date and time
+        console.log("test");
+        axios.get(`http://localhost/pdo/api/usersHandler.php?queryID=${localStorage.getItem('token')}`)
+            .then(response => {
+                const { last_checkin_date, last_checkin_time } = response.data[0];
+                setDateCheckin(last_checkin_date);
+                setTimeCheckin(last_checkin_time);
+            }).catch(error => {
+                if (error instanceof Error) {
+                    toast({
+                    title: "Error",
+                    description: error.message,
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true
+                    });
+                }
+            }
+        );
     }, []);
+
     return (
         <>
             <TransitionBlob />
-            <div>
-                <h1>Home Page</h1>
+            <div className="flex justify-center items-center h-screen">
+                <Card className="mx-auto p-6 max-w-sm">
+                    <CardBody className="text-center space-y-2">
+                        Checked in at
+                        <div className="text-4xl font-extrabold">{dateCheckin}</div>
+                        <div className="text-sm font-medium">{timeCheckin}</div>
+                    </CardBody>
+                    <CardFooter>
+                        <MotionButton
+                            className="w-full !bg-red-500 hover:!bg-red-600"
+                            whileHover={{ scale: 1.1 }}
+                            onClick={handleSignOut}
+                        >
+                            Sign out
+                        </MotionButton>
+                    </CardFooter>
+                </Card>
             </div>
         </>
     );

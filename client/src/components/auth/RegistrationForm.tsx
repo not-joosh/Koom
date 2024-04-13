@@ -57,20 +57,41 @@ export const RegistrationForm = () => {
     const handleRegistrationSubmit = (RegistrationData: RegistrationFormData) => {
         try {
             isSuccessful.current = false;
+            const date = new Date();
+            const month = date.toLocaleString("default", { month: "long" });
+            const day = date.getDate();
+            const year = date.getFullYear();
+            const hours = date.getHours();
+            let minutes = date.getMinutes();
+            const ampm = hours >= 12 ? "PM" : "AM";
+            const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
 
+            // Zero-padding for minutes less than 10
+            const minutesNumber = Number(minutes); // Convert minutes to a number
+            const paddedMinutes = minutesNumber < 10 ? `0${minutesNumber}` : minutesNumber.toString();
+            
+            const time = `${formattedHours}:${paddedMinutes} ${ampm}`;
+            const attendanceData = {
+                user: { RegistrationData },
+                day_entered: day,
+                month_entered: month,
+                year_entered: year,
+                time_str_entered: time
+            };
+    
             // Make both Axios calls
             const emailCheck = axios.get(`http://localhost/pdo/api/usersHandler.php?queryEmail=${RegistrationData.email}`);
             const contactCheck = axios.get(`http://localhost/pdo/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
-        
+
             // Wait for both requests to complete
             Promise.all([emailCheck, contactCheck])
                 .then((responses) => {
                     const emailResponse = responses[0].data;
                     const contactResponse = responses[1].data;
-        
+    
                     console.log(emailResponse);
                     console.log(contactResponse);
-        
+    
                     if (emailResponse.length === 0 && contactResponse.length === 0) {
                         // Both email and contact number are unique
                         isUnique.current = true;
@@ -78,29 +99,28 @@ export const RegistrationForm = () => {
                         // Either email or contact number is already in use
                         isUnique.current = false;
                     }
-        
+    
                     if (!isUnique.current) {
                         throw new Error("The email or contact number is already in use. Please try again.");
                     }
-        
+    
                     // Proceed with registration
-                    return axios.post(registerAuthURL, RegistrationData);
+                    return axios.post(registerAuthURL, attendanceData);
                 })
                 .then((response) => {
                     console.log(response.data);
-        
+    
                     // Handle registration success
                     console.log(typeof response.data);
                     console.log("success" === response.data);
-        
+    
                     // After successful registration, get the user ID
                     return axios.get(`http://localhost/pdo/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
                 })
                 .then((response) => {
-                    // console.log(response.data);
                     // Store the user ID in localStorage
                     localStorage.setItem("token", response.data[0].id);
-        
+    
                     // Notify user of successful registration
                     toast({
                         title: "Registration successful",
@@ -110,9 +130,13 @@ export const RegistrationForm = () => {
                         position: 'top',
                         isClosable: true,
                     });
-        
-                    // Set local storage to indicate authentication
-                    localStorage.setItem("isAuthenticated", "true");
+    
+                    // Submit attendance data
+                    return axios.post(`http://localhost/pdo/api/attendanceHandler.php?attendanceInitialize=${attendanceData}`);
+                })
+                .then((attendanceResponse) => {
+                    console.log("Attendance submitted:", attendanceResponse.data);
+    
                     // Redirect user to homepage
                     navigate(HOMEROUTE);
                 })
@@ -128,17 +152,18 @@ export const RegistrationForm = () => {
                     });
                 });
         } catch (error: unknown) {
-            if(error instanceof Error)
-            toast({
-                title: "Registration failed",
-                description: error.message,
-                status: "error",
-                duration: 5000,
-                position: 'top',
-                isClosable: true,
-            });
+            if (error instanceof Error)
+                toast({
+                    title: "Registration failed",
+                    description: error.message,
+                    status: "error",
+                    duration: 5000,
+                    position: 'top',
+                    isClosable: true,
+                });
         }
     };
+    
 
     useEffect(() => {
 

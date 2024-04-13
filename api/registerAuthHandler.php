@@ -24,30 +24,45 @@
             // Getting the data from the front end and echo it
             $data = json_decode(file_get_contents('php://input'), true);
             // echo json_encode($data);
-            
+        
             // Establishing a PDO connection
             $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
             
-            $stmt = $pdo->prepare("INSERT INTO user (id, first_name, last_name, middle_name, city, barangay, province, email, contact_number, password, account_type, usc_id_num) VALUES (:id, :first_name, :last_name, :middle_name, :city, :barangay, :province, :email, :contact_number, :password, :account_type, :usc_id_num)");
+            $stmt = $pdo->prepare("INSERT INTO user (id, first_name, last_name, middle_name, city, barangay, province, email, contact_number, password, account_type, usc_id_num, last_checkin_time, last_checkin_date) VALUES (:id, :first_name, :last_name, :middle_name, :city, :barangay, :province, :email, :contact_number, :password, :account_type, :usc_id_num, :last_checkin_time, :last_checkin_date)");
+            // The table will be users
+            $id = 11111111; // Assuming your id starts from 0
+            $first_name = $data['user']['RegistrationData']['first_name'];
+            $last_name = $data['user']['RegistrationData']['last_name'];
+            $middle_name = $data['user']['RegistrationData']['middle_name'];
+            $city = $data['user']['RegistrationData']['city'];
+            $barangay = $data['user']['RegistrationData']['barangay'];
+            $province = $data['user']['RegistrationData']['province'];
+            $email = $data['user']['RegistrationData']['email'];
+            $contact_number = $data['user']['RegistrationData']['contact_number'];
+            $password = md5($data['user']['RegistrationData']['password']);
+            $account_type = "user";
+            $usc_id_num = "";
+            $last_checkin_time = $data['time_str_entered']; // this the front end string -> setTime(`${formattedHours}:${minutes} ${ampm}`);
+            $last_checkin_date = $data["month_entered"] . ' ' . $data["day_entered"] . ', ' . $data["year_entered"]; // this is the front end string -> setDate(`${month} ${day}, ${year}`);
+            $last_checkout_time = "";
 
             // Binding the parameters
-            $id = 0; // Assuming your id starts from 0
             $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':first_name', $data['first_name']);
-            $stmt->bindParam(':last_name', $data['last_name']);
-            $stmt->bindParam(':middle_name', $data['middle_name']);
-            $stmt->bindParam(':city', $data['city']);
-            $stmt->bindParam(':barangay', $data['barangay']);
-            $stmt->bindParam(':province', $data['province']);
-            $stmt->bindParam(':email', $data['email']);
-            $stmt->bindParam(':contact_number', $data['contact_number']);
-            $passwordHash = md5($data['password']);
-            $stmt->bindParam(':password', $passwordHash);
-            $user_type = "user";
-            $stmt->bindParam(':account_type', $user_type);
-            $usc_id_num = ""; // Assuming you have the value for usc_id_num
-            $stmt->bindParam(':usc_id_num', $usc_id_num); // Binding usc_id_num
-            
+            echo "\nSEEING IF THIS IS WHERE IT BREAKS\n";
+            $stmt->bindParam(':first_name', $first_name);
+            $stmt->bindParam(':last_name', $last_name);
+            $stmt->bindParam(':middle_name', $middle_name);
+            $stmt->bindParam(':city', $city);
+            $stmt->bindParam(':barangay', $barangay);
+            $stmt->bindParam(':province', $province);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':contact_number', $contact_number);
+            $stmt->bindParam(':password', $password);
+            $stmt->bindParam(':account_type', $account_type);
+            $stmt->bindParam(':usc_id_num', $usc_id_num);
+            $stmt->bindParam(':last_checkin_time', $last_checkin_time);
+            $stmt->bindParam(':last_checkin_date', $last_checkin_date);
+
             // Executing the statement
             if ($stmt->execute()) {
                 echo "success";

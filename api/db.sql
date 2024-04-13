@@ -34,14 +34,12 @@ ALTER TABLE `users`.`user`
 DROP INDEX `usc_id_num_UNIQUE` ;
 ;
 
-CREATE SCHEMA `log_activities` ;
-CREATE TABLE `users`.`log` (
-  `idlog` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE `users`.`attendance` (
+  `attendancecol` INT NOT NULL AUTO_INCREMENT,
   `user` JSON NOT NULL,
-  `day` VARCHAR(45) NOT NULL,
-  `month` VARCHAR(45) NOT NULL,
-  `year` VARCHAR(45) NOT NULL,
-  `timestamp` VARCHAR(45) NOT NULL,
-  `account_type` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idlog`),
-  UNIQUE INDEX `idlog_UNIQUE` (`idlog` ASC) VISIBLE);
+  `day_entered` VARCHAR(45) NOT NULL,
+  `month_entered` VARCHAR(45) NOT NULL,
+  `year_entered` VARCHAR(45) NOT NULL,
+  `time_str_entered` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`attendancecol`));
+

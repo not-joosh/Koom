@@ -18,7 +18,7 @@
     $method = $_SERVER['REQUEST_METHOD'];
     switch($method) {
         case 'GET':
-
+            
             // Create a PDO instance
             $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
             
@@ -39,7 +39,7 @@
                 $query = "SELECT * FROM user WHERE usc_id_num = :usc_id_num";
                 $stmt = $pdo->prepare($query);
                 $stmt->bindParam(':usc_id_num', $_GET['queryUscID']);
-            }
+            } 
             else {
                 $query = "SELECT * FROM user";
                 $stmt = $pdo->prepare($query);
