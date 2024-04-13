@@ -1,5 +1,4 @@
-<?php 
-    // Using PDO to establish a connection to the database
+<?php
     header("Access-Control-Allow-Origin: *");
     header("Access-Control-Allow-Headers: *");
     header("Access-Control-Allow-Methods: *");
@@ -18,27 +17,46 @@
     $method = $_SERVER['REQUEST_METHOD'];
     switch($method) {
         case 'GET':
-
             // Create a PDO instance
             $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
-            
+            // /**  ==               AUTH METHODS                    == **/
+            // // Querrying by contact number
+            // if(isset($_GET['auth=getContactNumber'])) {
+            //     $query = "SELECT * FROM user WHERE contact_number = :contact_number";
+            //     $stmt = $pdo->prepare($query);
+            //     $stmt->bindParam(':contact_number', $_GET['queryContactNumber']);
+            // }
+
+            /**  ==               QUERY METHODS                    == **/
             // Querrying by contact number
             if(isset($_GET['queryContactNumber'])) {
                 $query = "SELECT * FROM user WHERE contact_number = :contact_number";
                 $stmt = $pdo->prepare($query);
                 $stmt->bindParam(':contact_number', $_GET['queryContactNumber']);
-            } else if(isset($_GET['queryEmail'])) {
+            } 
+            // Querrying by email
+            else if(isset($_GET['queryEmail'])) {
                 $query = "SELECT * FROM user WHERE email = :email";
                 $stmt = $pdo->prepare($query);
                 $stmt->bindParam(':email', $_GET['queryEmail']);
-            } else if (isset($_GET['queryID'])) {
+            } 
+            // Querrying by ID
+            else if (isset($_GET['queryID'])) {
                 $query = "SELECT * FROM user WHERE id = :id";
                 $stmt = $pdo->prepare($query);
                 $stmt->bindParam(':id', $_GET['queryID']);
-            } else if (isset($_GET['queryUscID'])) {
+            } 
+            // Querrying by USC ID
+            else if (isset($_GET['queryUscID'])) {
                 $query = "SELECT * FROM user WHERE usc_id_num = :usc_id_num";
                 $stmt = $pdo->prepare($query);
                 $stmt->bindParam(':usc_id_num', $_GET['queryUscID']);
+            }
+            // Querrying by account type
+            else if (isset($_GET['queryAccountType'])) {
+                $query = "SELECT * FROM user WHERE account_type = :account_type";
+                $stmt = $pdo->prepare($query);
+                $stmt->bindParam(':account_type', $_GET['queryAccountType']);
             }
             else {
                 $query = "SELECT * FROM user";

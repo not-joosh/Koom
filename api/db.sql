@@ -25,6 +25,7 @@ CHANGE COLUMN `account_type` `account_type` VARCHAR(255) NOT NULL ,
 CHANGE COLUMN `usc_id_num` `usc_id_num` VARCHAR(255) NULL DEFAULT NULL ;
 
 
+
 INSERT INTO `users`.`user` (`id`, `first_name`, `last_name`, `middle_name`, `city`, `barangay`, `province`, `email`, `contact_number`) VALUES ('20104272', 'Josh', 'Ratificar', 'Bobier', 'Chandler', 'Arizona', 'Gilbert', 'joshratificar@gmail.com', '480-277-9478');
 INSERT INTO `users`.`user` (`id`, `first_name`, `last_name`, `middle_name`, `city`, `barangay`, `province`, `email`, `contact_number`) VALUES ('20104273', 'Mohan', 'Francis', 'Tortilla', 'UAE', 'Dubai', 'Bohol', 'moefr@gmail.com', '917-142-6857');
 DELETE FROM `users`.`user` WHERE (`id` = '20241234');
@@ -32,3 +33,15 @@ DELETE FROM `users`.`user` WHERE (`id` = '20241235');
 ALTER TABLE `users`.`user` 
 DROP INDEX `usc_id_num_UNIQUE` ;
 ;
+
+CREATE SCHEMA `log_activities` ;
+CREATE TABLE `users`.`log` (
+  `idlog` INT NOT NULL AUTO_INCREMENT,
+  `user` JSON NOT NULL,
+  `day` VARCHAR(45) NOT NULL,
+  `month` VARCHAR(45) NOT NULL,
+  `year` VARCHAR(45) NOT NULL,
+  `timestamp` VARCHAR(45) NOT NULL,
+  `account_type` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idlog`),
+  UNIQUE INDEX `idlog_UNIQUE` (`idlog` ASC) VISIBLE);

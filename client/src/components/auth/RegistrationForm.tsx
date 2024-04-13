@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-
+import { useRef } from "react";
 
 /*===============           BACKEND NECESSITIES            ================*/
 import axios from "axios";
@@ -46,63 +46,100 @@ export interface RegistrationFormData {
 
 export const RegistrationForm = () => {
     const toast = useToast();
+    const isSuccessful = useRef(false);
+    const isUnique = useRef(false);
     const navigate = useNavigate();
+
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(GeneralRegistrationSchema),
     });
 
     const handleRegistrationSubmit = (RegistrationData: RegistrationFormData) => {
         try {
-            // We will send the form to our PHP SQL backend, then we will register the user.
-            axios.post(registerAuthURL, RegistrationData);
-            let isSuccess = false;
-            axios.post(registerAuthURL, RegistrationData).then((response) => {
-                console.log(response.data);
-                // response can be can be "success" or "failed". we will handle this and throw error
-                if (response.data === "success") {
-                    isSuccess = true;
-                }
-            });
+            isSuccessful.current = false;
 
-            if(isSuccess === false) {
-                throw new Error("Registration failed. Please try again.");
-            }
-
-            //going to use the contact number to now grab their id and then return it here
-            let userId = "";
-            axios.get(`http://localhost/pdo/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`).then((response) => {
-                // the userId is an object, so i will just need to get the thing "id"
-                console.log(response.data);
-                // storing the response.data[0].id into userId
-                // localStorage.setItem(response.data[0].id; <--- this is what i want to do
-                localStorage.setItem("token", response.data[0].id);
-            });
+            // Make both Axios calls
+            const emailCheck = axios.get(`http://localhost/pdo/api/usersHandler.php?queryEmail=${RegistrationData.email}`);
+            const contactCheck = axios.get(`http://localhost/pdo/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
+        
+            // Wait for both requests to complete
+            Promise.all([emailCheck, contactCheck])
+                .then((responses) => {
+                    const emailResponse = responses[0].data;
+                    const contactResponse = responses[1].data;
+        
+                    console.log(emailResponse);
+                    console.log(contactResponse);
+        
+                    if (emailResponse.length === 0 && contactResponse.length === 0) {
+                        // Both email and contact number are unique
+                        isUnique.current = true;
+                    } else {
+                        // Either email or contact number is already in use
+                        isUnique.current = false;
+                    }
+        
+                    if (!isUnique.current) {
+                        throw new Error("The email or contact number is already in use. Please try again.");
+                    }
+        
+                    // Proceed with registration
+                    return axios.post(registerAuthURL, RegistrationData);
+                })
+                .then((response) => {
+                    console.log(response.data);
+        
+                    // Handle registration success
+                    console.log(typeof response.data);
+                    console.log("success" === response.data);
+        
+                    // After successful registration, get the user ID
+                    return axios.get(`http://localhost/pdo/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
+                })
+                .then((response) => {
+                    // console.log(response.data);
+                    // Store the user ID in localStorage
+                    localStorage.setItem("token", response.data[0].id);
+        
+                    // Notify user of successful registration
+                    toast({
+                        title: "Registration successful",
+                        description: "You have successfully registered",
+                        status: "success",
+                        duration: 5000,
+                        position: 'top',
+                        isClosable: true,
+                    });
+        
+                    // Set local storage to indicate authentication
+                    localStorage.setItem("isAuthenticated", "true");
+                    // Redirect user to homepage
+                    navigate(HOMEROUTE);
+                })
+                .catch((error) => {
+                    // Handle any errors
+                    toast({
+                        title: "Registration failed",
+                        description: error.message,
+                        status: "error",
+                        duration: 5000,
+                        position: 'top',
+                        isClosable: true,
+                    });
+                });
+        } catch (error: unknown) {
+            if(error instanceof Error)
             toast({
-                title: "Registration successful",
-                description: "You have successfully registered",
-                status: "success",
+                title: "Registration failed",
+                description: error.message,
+                status: "error",
                 duration: 5000,
                 position: 'top',
                 isClosable: true,
             });
-            // Setting local storage to say the user has logged in
-            localStorage.setItem("isAuthenticated", "true");
-
-            // renavigate them to homepage after
-            navigate(HOMEROUTE);
-        } catch (error: unknown) {
-            if(error instanceof Error) {
-                toast({
-                    title: "Registration failed",
-                    description: error.message,
-                    status: "error",
-                    duration: 5000,
-                    position: 'top',
-                    isClosable: true,
-                });
-            }
-        };
+        }
     };
+
     useEffect(() => {
 
     }, []);
