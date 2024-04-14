@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { TransitionBlob } from "../components/motion/TransitionBlob";
 import { useNavigate } from "react-router-dom";
 import { LANDINGROUTE } from "../lib/routes";
-import { Button, Card, CardBody, CardFooter, CardHeader } from "@chakra-ui/react";
+import { Button, Card, CardBody, CardFooter } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -44,7 +44,7 @@ export const HomePage = () => {
                 date_str_exit: currentDate
             };
     
-            axios.post("http://localhost/pdo/api/attendanceHandler.php?attendanceCheckout", data)
+            axios.post("http://localhost/koom/api/attendanceHandler.php?attendanceCheckout", data)
                 .then((response) => {
                     console.log(response.data);
                     // Remove tokens and navigate after successful sign-out
@@ -82,7 +82,7 @@ export const HomePage = () => {
             navigate(LANDINGROUTE);
         // doing axios call to backend userID, i can use their token to query in userHandler.php to get json data for date and time
         console.log("test");
-        axios.get(`http://localhost/pdo/api/usersHandler.php?queryID=${localStorage.getItem('token')}`)
+        axios.get(`http://localhost/koom/api/usersHandler.php?queryID=${localStorage.getItem('token')}`)
             .then(response => {
                 const { last_checkin_date, last_checkin_time } = response.data[0];
                 setDateCheckin(last_checkin_date);

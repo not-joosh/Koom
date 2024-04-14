@@ -1,3 +1,3 @@
 
 
-export const registerAuthURL = "http://localhost/pdo/api/registerAuthHandler.php";
+export const registerAuthURL = "http://localhost/koom/api/registerAuthHandler.php";

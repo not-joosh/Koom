@@ -12,6 +12,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form"; 
 import { useToast } from "@chakra-ui/react";
 import { IDValidationForm } from "./IDValidationForm";
+import axios from "axios";
 
 /*===============           AUTH SCHEMAS            ================*/
 
@@ -48,24 +49,69 @@ export const LoginForm = () => {
     });
 
     const handleLoginSubmit = (GeneralLoginData: GeneralLoginFormData) => {
-        try { 
-            /*
-            1. We will firstly try to see if that login is correct by sending a request to the server.
-            2. We will receive the comparison of the password, then verify whether or not the user can then be logged in.
-            */
+        try {
+            axios.post("http://localhost/koom/api/loginAuthHandler.php", GeneralLoginData)
+                .then((response) => {
+                    console.log(response.data);
+    
+                    // Check if login was successful
+                    if (response.data.message === "Login successful" && response.data.user) {
+                        // Store the user data in localStorage (except password)
+                        localStorage.setItem("userID", response.data.user.id);
+                        localStorage.setItem("user", JSON.stringify(response.data.user));
+    
+                        // Redirect the user to the home page or perform any other action
+                        // navigate(HOMEROUTE);
+    
+                        // Show success message
+                        toast({
+                            title: "Login successful",
+                            description: "Welcome back!",
+                            status: "success",
+                            duration: 5000,
+                            position: 'top',
+                            isClosable: true,
+                        });
+                    } else {
+                        // Show error message
+                        toast({
+                            title: "Error logging in",
+                            description: "Invalid credentials. Please try again.",
+                            status: "error",
+                            duration: 9000,
+                            position: 'top',
+                            isClosable: true,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error logging in:", error.response?.data);
+                    // Handle error with toast or any other method
+                    const errorMessage = error.response?.data?.message || "An error occurred. Please try again.";
+                    toast({
+                        title: "Error logging in",
+                        description: errorMessage,
+                        status: "error",
+                        duration: 9000,
+                        position: 'top',
+                        isClosable: true,
+                    });
+                });
             console.log(GeneralLoginData);
-        } catch(error: unknown) {
-            if(error instanceof Error) {
+        } catch (error: unknown) {
+            if (error instanceof Error) {
                 toast({
                     title: "An error occurred.",
                     description: error.message,
                     status: "error",
                     duration: 9000,
+                    position: 'top',
                     isClosable: true,
                 });
             }
         }
-    }
+    };
+    
 
     useEffect(() => {
         // First we should check if they are already logged in

@@ -23,7 +23,9 @@
         case 'POST':
             // Getting the data from the front end and echo it
             $data = json_decode(file_get_contents('php://input'), true);
-            // echo json_encode($data);
+            echo "THIS IS THE DATA ON BACKEND OF ATTENDANCE:";
+            echo json_encode($data);
+            echo "\n\n\n\n\n\n";
 
             // Establishing a PDO connection
             $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
@@ -33,6 +35,7 @@
             if(isset($_GET['attendanceInitialize'])) {
                 // Transferring intial items into attendance 
                 // Binding the parameters
+                echo "attendanceInitialize";
                 $attendance_id = 11111111; 
                 $stmt->bindParam(':attendance_id', $attendance_id);
                 
@@ -48,7 +51,7 @@
                     "barangay" => $data['user']['RegistrationData']['barangay'],
                     "province" => $data['user']['RegistrationData']['province']
                 ]);
-    
+                
                 $stmt->bindParam(':user', $filtered_user);
                 $stmt->bindParam(':day_entered', $data['day_entered']);
                 $stmt->bindParam(':month_entered', $data['month_entered']);
@@ -58,15 +61,16 @@
                 // The data will contain "id" to query the attendance table. That is the table we will update,
                 // The data will also contain the time_str_exit, which we will go ahead and uapte this portion of the table.
                 // Update the time_str_exit for the given attendance_id
+                echo "attendanceCheckout";
                 $stmt = $pdo->prepare("UPDATE attendance SET time_str_exit = :time_str_exit WHERE attendance_id = :attendance_id");
                 
                 $attendance_id = $data['id']; // Assuming the data contains the attendance_id to update
                 $time_str_exit = $data['time_str_exit'];
-    
+                
                 $stmt->bindParam(':attendance_id', $attendance_id);
                 $stmt->bindParam(':time_str_exit', $time_str_exit);
             }
-
+            
             // Executing the statement
             if ($stmt->execute()) {
                 echo "success";

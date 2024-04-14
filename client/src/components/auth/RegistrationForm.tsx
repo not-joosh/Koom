@@ -80,8 +80,8 @@ export const RegistrationForm = () => {
             };
     
             // Make both Axios calls
-            const emailCheck = axios.get(`http://localhost/pdo/api/usersHandler.php?queryEmail=${RegistrationData.email}`);
-            const contactCheck = axios.get(`http://localhost/pdo/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
+            const emailCheck = axios.get(`http://localhost/koom/api/usersHandler.php?queryEmail=${RegistrationData.email}`);
+            const contactCheck = axios.get(`http://localhost/koom/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
 
             // Wait for both requests to complete
             Promise.all([emailCheck, contactCheck])
@@ -115,12 +115,11 @@ export const RegistrationForm = () => {
                     console.log("success" === response.data);
     
                     // After successful registration, get the user ID
-                    return axios.get(`http://localhost/pdo/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
+                    return axios.get(`http://localhost/koom/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
                 })
                 .then((response) => {
                     // Store the user ID in localStorage
                     localStorage.setItem("token", response.data[0].id);
-    
                     // Notify user of successful registration
                     toast({
                         title: "Registration successful",
@@ -132,11 +131,11 @@ export const RegistrationForm = () => {
                     });
     
                     // Submit attendance data
-                    return axios.post(`http://localhost/pdo/api/attendanceHandler.php?attendanceInitialize=${attendanceData}`);
+                    console.log("Attendance data:", attendanceData);
+                    return axios.post(`http://localhost/koom/api/attendanceHandler.php?attendanceInitialize`, attendanceData);
                 })
                 .then((attendanceResponse) => {
                     console.log("Attendance submitted:", attendanceResponse.data);
-    
                     // Redirect user to homepage
                     navigate(HOMEROUTE);
                 })
