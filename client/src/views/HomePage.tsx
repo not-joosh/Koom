@@ -94,7 +94,7 @@ export const HomePage = () => {
             setUserID(parseInt(localStorage.getItem("user_id")!));
         axios.get(`http://localhost/koom/api/usersHandler.php?queryID=${localStorage.getItem('user_id')}`)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 const { last_checkin_date, last_checkin_time } = response.data[0];
                 setDateCheckin(last_checkin_date);
                 setTimeCheckin(last_checkin_time);
@@ -146,16 +146,14 @@ export const HomePage = () => {
                             <div className="text-sm font-bold">{userID}</div>
                             <div className="text-sm font-medium italic">Keep the Account ID for future logins</div>
                         </CardBody>
-                        <CardFooter>
-                            <div className="flex justify-end">
-                                <MotionButton
-                                    className="w-full !bg-red-500 hover:!bg-red-600 mr-4"
-                                    whileHover={{ scale: 1.1 }}
-                                    onClick={handleSignOut}
-                                >
-                                    Sign out
-                                </MotionButton>
-                            </div>
+                        <CardFooter className="flex justify-center">
+                            <MotionButton
+                                className="!w-1/2 !bg-red-500 hover:!bg-red-600 mr-4"
+                                whileHover={{ scale: 1.1 }}
+                                onClick={handleSignOut}
+                            >
+                                Sign out
+                            </MotionButton>
                         </CardFooter>
                     </Card>
                 </motion.div>

@@ -46,8 +46,8 @@
             }
             
             // Step 1: Insert User Data
-            $insertUserStmt = $pdo->prepare("INSERT INTO user (first_name, last_name, middle_name, address, city, barangay, province, email, contact_number, password, account_type, usc_id_num, last_checkin_time, last_checkin_date) 
-                                    VALUES (:first_name, :last_name, :middle_name, :address, :city, :barangay, :province, :email, :contact_number, :password, :account_type, :usc_id_num, :last_checkin_time, :last_checkin_date)");
+            $insertUserStmt = $pdo->prepare("INSERT INTO user (first_name, last_name, middle_name, address, city, barangay, province, email, contact_number, password, account_type, last_checkin_time, last_checkin_date) 
+                                    VALUES (:first_name, :last_name, :middle_name, :address, :city, :barangay, :province, :email, :contact_number, :password, :account_type, :last_checkin_time, :last_checkin_date)");
             
             $insertUserStmt->bindParam(':first_name', $data['user']['RegistrationData']['first_name']);
             $insertUserStmt->bindParam(':last_name', $data['user']['RegistrationData']['last_name']);
@@ -61,7 +61,6 @@
             $password = md5($data['user']['RegistrationData']['password']);
             $insertUserStmt->bindParam(':password', $password);
             $insertUserStmt->bindValue(':account_type', "user");
-            $insertUserStmt->bindValue(':usc_id_num', "");
             $insertUserStmt->bindParam(':last_checkin_time', $data['time_str_entered']);
             $last_checkin_date = $data["month_entered"] . ' ' . $data["day_entered"] . ', ' . $data["year_entered"];
             $insertUserStmt->bindParam(':last_checkin_date', $last_checkin_date);

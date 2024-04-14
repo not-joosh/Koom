@@ -41,11 +41,6 @@
                 $query = "SELECT * FROM user WHERE id = :id";
                 $queryParams['id'] = $_GET['queryID'];
             } 
-            // Check if queryUscID is set
-            else if (isset($_GET['queryUscID'])) {
-                $query = "SELECT * FROM user WHERE usc_id_num = :usc_id_num";
-                $queryParams['usc_id_num'] = $_GET['queryUscID'];
-            } 
             // Default query if no parameters are provided
             else {
                 $query = "SELECT * FROM user";

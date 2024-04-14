@@ -39,7 +39,6 @@ interface UserData {
 export const ConfirmationCard = (RetrievedData: UserData) => {
     const toast = useToast();
     const navigate = useNavigate();
-    const [isValidUSC, setIsValidUSC] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(ConfirmationCardSchema),
     });
