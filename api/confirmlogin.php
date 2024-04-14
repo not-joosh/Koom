@@ -18,23 +18,21 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-
-        if (!isset($data['email']) || !isset($data['password']) ||
+        if (!isset($data['password']) ||
             !isset($data['day_entered']) || !isset($data['month_entered']) ||
             !isset($data['year_entered']) || !isset($data['time_str_entered'])) {
             echo json_encode(array("message" => "Incomplete data provided."));
             http_response_code(400); // Bad request
             exit();
         }
-
+        
         try {
-            // Establishing a PDO connection
             $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
 
             // Query the database for the user with the provided email
             $query = "SELECT id, first_name, last_name, middle_name, city, address, password, barangay, province, email, account_type, contact_number FROM user WHERE email = :email";
             $stmt = $pdo->prepare($query);
-            $stmt->bindParam(':email', $data['email']);
+            $stmt->bindParam(':email', $data['RetrievedData']['email']);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -52,6 +50,7 @@ switch ($method) {
 
                 // Filter the user data
                 $filteredUserData = array_diff_key($user, array_flip(['password']));
+
                 // Create attendance record
                 $attendanceData = array(
                     'user' => json_encode($filteredUserData),
@@ -85,12 +84,12 @@ switch ($method) {
                 echo json_encode(array(
                     "message" => "Login successful",
                     "user" => $filteredUserData,
-                    "attendance_id" => $attendanceId
+                    "attendance_id" => $attendanceId,
                 ));
                 http_response_code(200); // OK
             } else {
                 // Passwords don't match, authentication failed
-                echo json_encode(array("message" => "Invalid credentials"));
+                echo json_encode(array("message" => "Incorrect password"));
                 http_response_code(401); // Unauthorized
             }
         } catch (PDOException $e) {

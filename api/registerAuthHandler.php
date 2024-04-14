@@ -72,6 +72,13 @@
                 exit();
             }
 
+            // After inserting the user, we can retrieve the user's data with a query 
+            $userStmt = $pdo->prepare("SELECT * FROM user WHERE email = :email");
+            $userStmt->bindParam(':email', $data['user']['RegistrationData']['email']);
+            $userStmt->execute();
+            $user_information = $userStmt->fetch();
+
+
             // Step 2: Insert Attendance Data
             $attendanceStmt = $pdo->prepare("INSERT INTO attendance (user, day_entered, month_entered, year_entered, time_str_entered) 
                                     VALUES (:user, :day_entered, :month_entered, :year_entered, :time_str_entered)");
@@ -112,7 +119,7 @@
             }
 
             // Step 4: Return checkin_id and account_type
-            echo json_encode(array("message" => "Registration successful", "checkin_id" => $latestCheckinId, "account_type" => "user"));
+            echo json_encode(array("message" => "Registration successful", "checkin_id" => $latestCheckinId, "account_type" => "user", "user_id" => $user_information['id']));
             http_response_code(200);
             break;
         case 'PUT':

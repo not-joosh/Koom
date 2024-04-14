@@ -13,6 +13,7 @@ export const HomePage = () => {
     const toast = useToast();
     const [dateCheckin, setDateCheckin] = useState<string>("");
     const [timeCheckin, setTimeCheckin] = useState<string>("");
+    const [userID, setUserID] = useState<number>(0);
 
     const handleSignOut = () => {
         try {
@@ -50,6 +51,7 @@ export const HomePage = () => {
                     // Remove tokens and navigate after successful sign-out
                     localStorage.removeItem("token");
                     localStorage.removeItem("account_type");
+                    localStorage.removeItem("user_id");
                     navigate(LANDINGROUTE);
                 })
                 .catch((error) => {
@@ -77,10 +79,10 @@ export const HomePage = () => {
 
     useEffect(() => {
         document.title = "KOOM | Home";
+        if(localStorage.getItem("user_id"))
+            setUserID(parseInt(localStorage.getItem("user_id")!));
         if (localStorage.getItem("token") === null)
             navigate(LANDINGROUTE);
-        // doing axios call to backend userID, i can use their token to query in userHandler.php to get json data for date and time
-        console.log("test");
         axios.get(`http://localhost/koom/api/usersHandler.php?queryAttendanceId=${localStorage.getItem('token')}`)
             .then(response => {
                 const { last_checkin_date, last_checkin_time } = response.data[0];
@@ -109,6 +111,12 @@ export const HomePage = () => {
                         Checked in at
                         <div className="text-4xl font-extrabold">{dateCheckin}</div>
                         <div className="text-sm font-medium">{timeCheckin}</div>
+                    </CardBody>
+                    <hr className="font-bold  "/>
+                    <CardBody className="text-center space-y-2">
+                        <div className="text-2xl font-bold">ACCOUNT ID:</div>
+                        <div className="text-sm font-bold text-fuchsia-900">{userID}</div>
+                        <div className="text-sm font-medium italic">Keep the Account ID for future logins</div>
                     </CardBody>
                     <CardFooter>
                         <MotionButton

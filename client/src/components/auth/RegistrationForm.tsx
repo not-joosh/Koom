@@ -84,8 +84,10 @@ export const RegistrationForm = () => {
                         const accountType = response.data.account_type;
                         localStorage.setItem("token", checkinId);
                         localStorage.setItem("account_type", accountType);
+                        localStorage.setItem("user_id", response.data.user_id);
+                        localStorage.setItem("hasVisited", "true");
                         // Redirect
-                        // console.log(response.data);
+                        console.log(response.data);
                         toast({
                             title: "Registration Successful",
                             description: response.data.message,

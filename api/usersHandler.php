@@ -35,6 +35,7 @@
                 $query = "SELECT * FROM user WHERE id = :id";
                 $stmt = $pdo->prepare($query);
                 $stmt->bindParam(':id', $_GET['queryID']);
+                $stmt->execute();
             } else if (isset($_GET['queryUscID'])) {
                 $query = "SELECT * FROM user WHERE usc_id_num = :usc_id_num";
                 $stmt = $pdo->prepare($query);
