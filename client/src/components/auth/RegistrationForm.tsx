@@ -56,21 +56,17 @@ export const RegistrationForm = () => {
 
     const handleRegistrationSubmit = (RegistrationData: RegistrationFormData) => {
         try {
-            isSuccessful.current = false;
             const date = new Date();
             const month = date.toLocaleString("default", { month: "long" });
             const day = date.getDate();
             const year = date.getFullYear();
             const hours = date.getHours();
-            let minutes = date.getMinutes();
+            const minutes = date.getMinutes();
             const ampm = hours >= 12 ? "PM" : "AM";
             const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-
-            // Zero-padding for minutes less than 10
-            const minutesNumber = Number(minutes); // Convert minutes to a number
-            const paddedMinutes = minutesNumber < 10 ? `0${minutesNumber}` : minutesNumber.toString();
-            
+            const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes.toString();
             const time = `${formattedHours}:${paddedMinutes} ${ampm}`;
+    
             const attendanceData = {
                 user: { RegistrationData },
                 day_entered: day,
@@ -79,89 +75,56 @@ export const RegistrationForm = () => {
                 time_str_entered: time
             };
     
-            // Make both Axios calls
-            const emailCheck = axios.get(`http://localhost/koom/api/usersHandler.php?queryEmail=${RegistrationData.email}`);
-            const contactCheck = axios.get(`http://localhost/koom/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
-
-            // Wait for both requests to complete
-            Promise.all([emailCheck, contactCheck])
-                .then((responses) => {
-                    const emailResponse = responses[0].data;
-                    const contactResponse = responses[1].data;
-    
-                    console.log(emailResponse);
-                    console.log(contactResponse);
-    
-                    if (emailResponse.length === 0 && contactResponse.length === 0) {
-                        // Both email and contact number are unique
-                        isUnique.current = true;
-                    } else {
-                        // Either email or contact number is already in use
-                        isUnique.current = false;
-                    }
-    
-                    if (!isUnique.current) {
-                        throw new Error("The email or contact number is already in use. Please try again.");
-                    }
-    
-                    // Proceed with registration
-                    return axios.post(registerAuthURL, attendanceData);
-                })
+            axios.post(registerAuthURL, attendanceData)
                 .then((response) => {
                     console.log(response.data);
-    
                     // Handle registration success
-                    console.log(typeof response.data);
-                    console.log("success" === response.data);
-    
-                    // After successful registration, get the user ID
-                    return axios.get(`http://localhost/koom/api/usersHandler.php?queryContactNumber=${RegistrationData.contact_number}`);
-                })
-                .then((response) => {
-                    // Store the user ID in localStorage
-                    localStorage.setItem("token", response.data[0].id);
-                    // Notify user of successful registration
-                    toast({
-                        title: "Registration successful",
-                        description: "You have successfully registered",
-                        status: "success",
-                        duration: 5000,
-                        position: 'top',
-                        isClosable: true,
-                    });
-    
-                    // Submit attendance data
-                    console.log("Attendance data:", attendanceData);
-                    return axios.post(`http://localhost/koom/api/attendanceHandler.php?attendanceInitialize`, attendanceData);
-                })
-                .then((attendanceResponse) => {
-                    console.log("Attendance submitted:", attendanceResponse.data);
-                    // Redirect user to homepage
-                    navigate(HOMEROUTE);
+                    if (response.data.message === "Registration successful") {
+                        const checkinId = response.data.checkin_id;
+                        const accountType = response.data.account_type;
+                        localStorage.setItem("token", checkinId);
+                        localStorage.setItem("account_type", accountType);
+                        // Redirect
+                        // console.log(response.data);
+                        toast({
+                            title: "Registration Successful",
+                            description: response.data.message,
+                            status: "success",
+                            duration: 5000,
+                            position: "top",
+                            isClosable: true,
+                        });
+                        navigate(HOMEROUTE);
+                    }
                 })
                 .catch((error) => {
-                    // Handle any errors
+                    console.error("Registration error:", error.response?.data?.message || error.message);
+                    // Handle registration error
+                    // Show an error message or take appropriate action
                     toast({
-                        title: "Registration failed",
-                        description: error.message,
+                        title: "Registration Error",
+                        description: error.response?.data?.message || error.message,
                         status: "error",
                         duration: 5000,
-                        position: 'top',
+                        position: "top",
                         isClosable: true,
                     });
                 });
-        } catch (error: unknown) {
-            if (error instanceof Error)
+        } catch (error) {
+            if(error instanceof yup.ValidationError) {
                 toast({
-                    title: "Registration failed",
+                    title: "Validation Error",
                     description: error.message,
                     status: "error",
                     duration: 5000,
-                    position: 'top',
+                    position: "top",
                     isClosable: true,
                 });
+            }
         }
     };
+    
+    
     
 
     useEffect(() => {

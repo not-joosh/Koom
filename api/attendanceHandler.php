@@ -32,32 +32,7 @@
             
             $stmt = $pdo->prepare("INSERT INTO attendance (attendance_id, user, day_entered, month_entered, year_entered, time_str_entered) VALUES (:attendance_id, :user, :day_entered, :month_entered, :year_entered, :time_str_entered)");
 
-            if(isset($_GET['attendanceInitialize'])) {
-                // Transferring intial items into attendance 
-                // Binding the parameters
-                echo "attendanceInitialize";
-                $attendance_id = 11111111; 
-                $stmt->bindParam(':attendance_id', $attendance_id);
-                
-                // removing the password and confirmPassword
-                $filtered_user = json_encode([
-                    "first_name" => $data['user']['RegistrationData']['first_name'],
-                    "middle_name" => $data['user']['RegistrationData']['middle_name'],
-                    "last_name" => $data['user']['RegistrationData']['last_name'],
-                    "email" => $data['user']['RegistrationData']['email'],
-                    "contact_number" => $data['user']['RegistrationData']['contact_number'],
-                    "address" => $data['user']['RegistrationData']['address'],
-                    "city" => $data['user']['RegistrationData']['city'],
-                    "barangay" => $data['user']['RegistrationData']['barangay'],
-                    "province" => $data['user']['RegistrationData']['province']
-                ]);
-                
-                $stmt->bindParam(':user', $filtered_user);
-                $stmt->bindParam(':day_entered', $data['day_entered']);
-                $stmt->bindParam(':month_entered', $data['month_entered']);
-                $stmt->bindParam(':year_entered', $data['year_entered']);
-                $stmt->bindParam(':time_str_entered', $data['time_str_entered']);
-            } else if (isset($_GET['attendanceCheckout'])) {
+            if (isset($_GET['attendanceCheckout'])) {
                 // The data will contain "id" to query the attendance table. That is the table we will update,
                 // The data will also contain the time_str_exit, which we will go ahead and uapte this portion of the table.
                 // Update the time_str_exit for the given attendance_id
@@ -77,6 +52,12 @@
             } else {
                 echo "error";
             }
+
+            // now we will clear the checkin_id of the user
+            $stmt = $pdo->prepare("UPDATE user SET checkin_id = NULL WHERE id = :id");
+            $stmt->bindParam(':id', $data['user']['id']);
+            $stmt->execute();
+            
             break;
         case 'PUT':
             echo "PUT";

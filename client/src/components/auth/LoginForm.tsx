@@ -50,19 +50,39 @@ export const LoginForm = () => {
 
     const handleLoginSubmit = (GeneralLoginData: GeneralLoginFormData) => {
         try {
-            axios.post("http://localhost/koom/api/loginAuthHandler.php", GeneralLoginData)
+            // Create the login data object with time strings
+            const date = new Date();
+            const month = date.toLocaleString("default", { month: "long" });
+            const day = date.getDate();
+            const year = date.getFullYear();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const ampm = hours >= 12 ? "PM" : "AM";
+            const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+            const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes.toString();
+            const time = `${formattedHours}:${paddedMinutes} ${ampm}`;
+    
+            const loginData = {
+                ...GeneralLoginData,
+                day_entered: day,
+                month_entered: month,
+                year_entered: year,
+                time_str_entered: time
+            };
+    
+            // Make the single API call with the combined data
+            axios.post("http://localhost/koom/api/loginAuthHandler.php", loginData)
                 .then((response) => {
                     console.log(response.data);
     
-                    // Check if login was successful
+                    // Handle the response from the backend
                     if (response.data.message === "Login successful" && response.data.user) {
                         // Store the user data in localStorage (except password)
-                        localStorage.setItem("userID", response.data.user.id);
-                        localStorage.setItem("user", JSON.stringify(response.data.user));
-    
-                        // Redirect the user to the home page or perform any other action
-                        // navigate(HOMEROUTE);
-    
+                        // localStorage.setItem("userID", response.data.user.id);
+                        // localStorage.setItem("user", JSON.stringify(response.data.user));
+                        localStorage.setItem("token", response.data.attendance_id);
+                        console.log(response.data)
+                        localStorage.setItem("account_type", response.data.user.account_type);
                         // Show success message
                         toast({
                             title: "Login successful",
@@ -72,8 +92,10 @@ export const LoginForm = () => {
                             position: 'top',
                             isClosable: true,
                         });
+                        // Redirect the user to the home page or perform any other action
+                        navigate(HOMEROUTE);
                     } else {
-                        // Show error message
+                        // Show error message for login failure
                         toast({
                             title: "Error logging in",
                             description: "Invalid credentials. Please try again.",
@@ -85,8 +107,9 @@ export const LoginForm = () => {
                     }
                 })
                 .catch((error) => {
+                    // Handle general login error
                     console.error("Error logging in:", error.response?.data);
-                    // Handle error with toast or any other method
+                    // Show an error message or take appropriate action
                     const errorMessage = error.response?.data?.message || "An error occurred. Please try again.";
                     toast({
                         title: "Error logging in",
@@ -97,9 +120,9 @@ export const LoginForm = () => {
                         isClosable: true,
                     });
                 });
-            console.log(GeneralLoginData);
         } catch (error: unknown) {
             if (error instanceof Error) {
+                // Handle any other error
                 toast({
                     title: "An error occurred.",
                     description: error.message,
@@ -111,6 +134,7 @@ export const LoginForm = () => {
             }
         }
     };
+    
     
 
     useEffect(() => {

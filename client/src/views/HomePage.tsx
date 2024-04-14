@@ -49,8 +49,7 @@ export const HomePage = () => {
                     console.log(response.data);
                     // Remove tokens and navigate after successful sign-out
                     localStorage.removeItem("token");
-                    localStorage.removeItem("isAuthenticated");
-                    localStorage.removeItem("userType");
+                    localStorage.removeItem("account_type");
                     navigate(LANDINGROUTE);
                 })
                 .catch((error) => {
@@ -82,7 +81,7 @@ export const HomePage = () => {
             navigate(LANDINGROUTE);
         // doing axios call to backend userID, i can use their token to query in userHandler.php to get json data for date and time
         console.log("test");
-        axios.get(`http://localhost/koom/api/usersHandler.php?queryID=${localStorage.getItem('token')}`)
+        axios.get(`http://localhost/koom/api/usersHandler.php?queryAttendanceId=${localStorage.getItem('token')}`)
             .then(response => {
                 const { last_checkin_date, last_checkin_time } = response.data[0];
                 setDateCheckin(last_checkin_date);
