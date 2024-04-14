@@ -1,11 +1,50 @@
-# INFO
+# Koom
+Contact Tracing Application | Vite React, Tailwindcss, PHP, MySQL
 
-Connection Name = Test
+## Description
 
+Koom is an attendance tracing application for guests, students, and faculty members who enter the University of San Carlos.
 
-CREATE TABLE `users`.`user` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `first_name` VARCHAR(45) NOT NULL,
-  `last_name` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`id`));
-INSERT INTO `users`.`user` (`id`, `first_name`, `last_name`) VALUES ('20104272', 'Josh', 'Ratificar');
+## Technologies Used
+
+### Frontend
+
+- Vite React
+- Tailwind CSS
+- Chakra UI
+- Framer Motion
+
+### Backend
+
+- PHP
+- MySQL
+
+## Contributors
+
+- Josh Ratificar ([GitHub](https://github.com/not-joosh))
+
+## How to Setup Locally
+
+1. Clone the repository:
+  ```
+  git clone https://github.com/not-joosh/Koom.git
+  ```
+
+2. Navigate to the `koom/client` directory:
+  ```
+  cd koom/client
+  ```
+
+3. Install dependencies:
+  ```
+  npm install
+  ```
+
+4. Run the development server:
+  ```
+  npm run dev
+  ```
+
+## License
+
+This project is licensed under the MIT License.
