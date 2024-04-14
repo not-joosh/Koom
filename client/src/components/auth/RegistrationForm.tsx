@@ -46,8 +46,6 @@ export interface RegistrationFormData {
 
 export const RegistrationForm = () => {
     const toast = useToast();
-    const isSuccessful = useRef(false);
-    const isUnique = useRef(false);
     const navigate = useNavigate();
 
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -125,15 +123,15 @@ export const RegistrationForm = () => {
             }
         }
     };
-    
-    
-    
 
     useEffect(() => {
-
+        // Checking if they have visted
+        const token = localStorage.getItem("token");
+        if(token)
+            navigate(HOMEROUTE);
     }, []);
     return (
-        <motion.div className=" py-4">
+        <motion.div className=" py-4 ">
             <Card>
                 <CardBody>
                     <div className="mx-auto max-w-sm space-y-6">
@@ -189,6 +187,7 @@ export const RegistrationForm = () => {
                             <div className="space-y-2">
                                 <FormLabel htmlFor="confirm-password">Confirm password</FormLabel>
                                 <Input id="confirm-password" required type="password" {...register('confirmPassword')}/>
+                                <p className="text-red-500 text-xs italic">{errors.confirmPassword?.message}</p>
                             </div>
                             <Button className="w-full" type="submit">
                                 Register

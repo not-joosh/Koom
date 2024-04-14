@@ -110,7 +110,7 @@ export const IDValidationForm = () => {
         <>
             {!isValidUSC && !isFirstVisit ? (
                 <div className="flex justify-center items-center h-screen">
-                    <motion.div className=" py-4">
+                    <motion.div className=" py-4 mx-auto p-6 max-w-lg w-full">
                         <Card>
                             <CardBody>
                                 <div className="mx-auto max-w-sm space-y-6">
@@ -123,9 +123,19 @@ export const IDValidationForm = () => {
                                             <FormLabel htmlFor="email">USC ID Number</FormLabel>
                                             <Input id="email" required {...register('usc_id_num')} />
                                         </div>
-                                        <Button className="w-full" type="submit">
-                                            Confirm
-                                        </Button>
+                                        <motion.div 
+                                            // initial={{ scale: 1 }}
+                                            initial={{ opacity: 0, y: -50 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            whileHover={{ scale: 1.03 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 50 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <Button className="w-full" type="submit">
+                                                Confirm
+                                            </Button>
+                                        </motion.div>
                                     </form>
                                 </div>
                             </CardBody>

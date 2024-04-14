@@ -18,58 +18,56 @@
     $method = $_SERVER['REQUEST_METHOD'];
     switch($method) {
         case 'GET':
-            
             // Create a PDO instance
             $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
-            
-            // Querrying by contact number
+            // Set PDO to throw exceptions
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            // Initialize an empty array for the query parameters
+            $queryParams = [];
+
+            // Check if queryContactNumber is set
             if(isset($_GET['queryContactNumber'])) {
                 $query = "SELECT * FROM user WHERE contact_number = :contact_number";
-                $stmt = $pdo->prepare($query);
-                $stmt->bindParam(':contact_number', $_GET['queryContactNumber']);
-            } else if(isset($_GET['queryEmail'])) {
+                $queryParams['contact_number'] = $_GET['queryContactNumber'];
+            } 
+            // Check if queryEmail is set
+            else if(isset($_GET['queryEmail'])) {
                 $query = "SELECT * FROM user WHERE email = :email";
-                $stmt = $pdo->prepare($query);
-                $stmt->bindParam(':email', $_GET['queryEmail']);
-            } else if (isset($_GET['queryID'])) {
+                $queryParams['email'] = $_GET['queryEmail'];
+            } 
+            // Check if queryID is set
+            else if (isset($_GET['queryID'])) {
                 $query = "SELECT * FROM user WHERE id = :id";
-                $stmt = $pdo->prepare($query);
-                $stmt->bindParam(':id', $_GET['queryID']);
-                $stmt->execute();
-            } else if (isset($_GET['queryUscID'])) {
+                $queryParams['id'] = $_GET['queryID'];
+            } 
+            // Check if queryUscID is set
+            else if (isset($_GET['queryUscID'])) {
                 $query = "SELECT * FROM user WHERE usc_id_num = :usc_id_num";
-                $stmt = $pdo->prepare($query);
-                $stmt->bindParam(':usc_id_num', $_GET['queryUscID']);
-            }
+                $queryParams['usc_id_num'] = $_GET['queryUscID'];
+            } 
+            // Default query if no parameters are provided
             else {
                 $query = "SELECT * FROM user";
-                $stmt = $pdo->prepare($query);
             }
-            $num = 0;
+
+            // Prepare the SQL query
+            $stmt = $pdo->prepare($query);
+
+            // Bind parameters
+            foreach ($queryParams as $param => $value) {
+                $stmt->bindParam(':' . $param, $value);
+            }
 
             // Execute the query
             $stmt->execute();
-        
+
             // Fetch all rows as an associative array
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // Return the JSON response
             header('Content-Type: application/json');
             echo json_encode($rows);
-            break;
-            // // Create a PDO instance
-            // $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
-            // // Prepare and execute the query
-            // $query = "SELECT * FROM user";
-            // $stmt = $pdo->prepare($query);
-            // $stmt->execute();
-
-            // // Fetch all rows as an associative array
-            // $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // // Return the JSON response
-            // header('Content-Type: application/json');
-            // echo json_encode($rows);
             break;
         case 'POST':
             echo "POST";

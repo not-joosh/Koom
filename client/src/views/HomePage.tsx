@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { TransitionBlob } from "../components/motion/TransitionBlob";
 import { useNavigate } from "react-router-dom";
 import { LANDINGROUTE } from "../lib/routes";
-import { Button, Card, CardBody, CardFooter } from "@chakra-ui/react";
+import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Stack } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { AdminUi } from "./admin/admin-ui";
 const MotionButton = motion(Button);
 
 export const HomePage = () => {
@@ -13,6 +14,7 @@ export const HomePage = () => {
     const toast = useToast();
     const [dateCheckin, setDateCheckin] = useState<string>("");
     const [timeCheckin, setTimeCheckin] = useState<string>("");
+    const [userType, setUserType] = useState<string>("");
     const [userID, setUserID] = useState<number>(0);
 
     const handleSignOut = () => {
@@ -52,6 +54,14 @@ export const HomePage = () => {
                     localStorage.removeItem("token");
                     localStorage.removeItem("account_type");
                     localStorage.removeItem("user_id");
+                    toast({
+                        title: "Signed out successfully",
+                        description: "You have been signed out successfully",
+                        status: "success",
+                        position: "top",
+                        duration: 5000,
+                        isClosable: true
+                    });
                     navigate(LANDINGROUTE);
                 })
                 .catch((error) => {
@@ -79,12 +89,13 @@ export const HomePage = () => {
 
     useEffect(() => {
         document.title = "KOOM | Home";
-        if(localStorage.getItem("user_id"))
-            setUserID(parseInt(localStorage.getItem("user_id")!));
         if (localStorage.getItem("token") === null)
             navigate(LANDINGROUTE);
-        axios.get(`http://localhost/koom/api/usersHandler.php?queryAttendanceId=${localStorage.getItem('token')}`)
+        if(localStorage.getItem("user_id"))
+            setUserID(parseInt(localStorage.getItem("user_id")!));
+        axios.get(`http://localhost/koom/api/usersHandler.php?queryID=${localStorage.getItem('user_id')}`)
             .then(response => {
+                console.log(response.data);
                 const { last_checkin_date, last_checkin_time } = response.data[0];
                 setDateCheckin(last_checkin_date);
                 setTimeCheckin(last_checkin_time);
@@ -100,35 +111,52 @@ export const HomePage = () => {
                 }
             }
         );
+        // Checking if admin or user
+        if(localStorage.getItem("account_type") === "admin")
+            setUserType("admin");
+        else
+            setUserType("user");
     }, []);
 
     return (
         <>
             <TransitionBlob />
-            <div className="flex justify-center items-center h-screen">
-                <Card className="mx-auto p-6 max-w-sm">
-                    <CardBody className="text-center space-y-2">
-                        Checked in at
-                        <div className="text-4xl font-extrabold">{dateCheckin}</div>
-                        <div className="text-sm font-medium">{timeCheckin}</div>
-                    </CardBody>
-                    <hr className="font-bold  "/>
-                    <CardBody className="text-center space-y-2">
-                        <div className="text-2xl font-bold">ACCOUNT ID:</div>
-                        <div className="text-sm font-bold text-fuchsia-900">{userID}</div>
-                        <div className="text-sm font-medium italic">Keep the Account ID for future logins</div>
-                    </CardBody>
-                    <CardFooter>
-                        <MotionButton
-                            className="w-full !bg-red-500 hover:!bg-red-600"
-                            whileHover={{ scale: 1.1 }}
-                            onClick={handleSignOut}
-                        >
-                            Sign out
-                        </MotionButton>
-                    </CardFooter>
-                </Card>
-            </div>
+            {userType === "admin"? (
+                <div className="center">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+                        <AdminUi signOut={handleSignOut}/>
+                    </motion.div>
+                </div>
+            )
+            : 
+            (
+                <motion.div className="flex justify-center items-center h-screen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+                    <Card className="mx-auto p-6 max-w-md w-7/12">
+                        <CardBody className="text-center space-y-2">
+                            Checked in at
+                            <div className="text-4xl font-extrabold">{dateCheckin}</div>
+                            <div className="text-sm font-medium">{timeCheckin}</div>
+                        </CardBody>
+                        <hr className="font-bold" />
+                        <CardBody className="text-center space-y-2">
+                            <div className="text-2xl font-bold">ACCOUNT ID:</div>
+                            <div className="text-sm font-bold">{userID}</div>
+                            <div className="text-sm font-medium italic">Keep the Account ID for future logins</div>
+                        </CardBody>
+                        <CardFooter>
+                            <div className="flex justify-end">
+                                <MotionButton
+                                    className="w-full !bg-red-500 hover:!bg-red-600 mr-4"
+                                    whileHover={{ scale: 1.1 }}
+                                    onClick={handleSignOut}
+                                >
+                                    Sign out
+                                </MotionButton>
+                            </div>
+                        </CardFooter>
+                    </Card>
+                </motion.div>
+            )}
         </>
     );
 };

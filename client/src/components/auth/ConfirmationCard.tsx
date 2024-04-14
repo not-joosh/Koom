@@ -126,10 +126,15 @@ export const ConfirmationCard = (RetrievedData: UserData) => {
     
     return (
         <div className="flex justify-center items-center h-screen">
-            <motion.div className="py-4">
+            <motion.div className="py-4"                             
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scaleX: 0, scaleY: 0 }}
+                transition={{ duration: 0.5 }}
+            >
                 <Card> {/*THIS PART, we are just wating for the user to confirm, then we will continue */}
                     <CardBody>
-                        <div className="mx-auto max-w-md space-y-6"> {/* Increase max-w-md for wider card */}
+                        <div className="mx-auto max-w-md space-y-6 w-72 md:w-96"> {/* Increase max-w-md for wider card */}
                             <div className="space-y-2 text-center">
                                 <h1 className="text-3xl font-bold">CONFIRMATION</h1>
                                 <p className="text-gray-500 dark:text-gray-400">Is this you?</p>
@@ -197,9 +202,18 @@ export const ConfirmationCard = (RetrievedData: UserData) => {
                                     <FormLabel htmlFor="password">Password</FormLabel>
                                     <Input className='bg-red-300' id="password" required type="password" {...register('password')} />
                                 </div>
-                                <Button className="w-full" type="submit">
-                                    Confirm
-                                </Button>
+                                <motion.div
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    whileFocus={{ scale: 1.02 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 50 }}
+                                    transition={{ duration: 0.5 }}
+                                >
+                                    <Button className="w-full" type="submit">
+                                        Confirm
+                                    </Button>
+                                </motion.div>
                             </form>
                         </div>
                     </CardBody>

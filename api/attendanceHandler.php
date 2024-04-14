@@ -23,9 +23,9 @@
         case 'POST':
             // Getting the data from the front end and echo it
             $data = json_decode(file_get_contents('php://input'), true);
-            echo "THIS IS THE DATA ON BACKEND OF ATTENDANCE:";
-            echo json_encode($data);
-            echo "\n\n\n\n\n\n";
+            // echo "THIS IS THE DATA ON BACKEND OF ATTENDANCE:";
+            // echo json_encode($data);
+            // echo "\n\n\n\n\n\n";
 
             // Establishing a PDO connection
             $pdo = new PDO("mysql:host=$server;dbname=$db", $user, $password);
