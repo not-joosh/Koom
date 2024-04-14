@@ -88,7 +88,6 @@ export const HomePage = () => {
     };
 
     useEffect(() => {
-        document.title = "KOOM | Home";
         if (localStorage.getItem("token") === null)
             navigate(LANDINGROUTE);
         if(localStorage.getItem("user_id"))
@@ -112,10 +111,14 @@ export const HomePage = () => {
             }
         );
         // Checking if admin or user
-        if(localStorage.getItem("account_type") === "admin")
+        if(localStorage.getItem("account_type") === "admin") {
             setUserType("admin");
-        else
+            document.title = "KOOM | Admin Home";
+        }
+        else {
             setUserType("user");
+            document.title = "KOOM | Home";
+        }
     }, []);
 
     return (
